@@ -48,7 +48,10 @@ router.delete<Record<string, string>, session.DeleteResponse>(
 	authenticated,
 	(req, res) => {
 		if (req.user) {
-			req.logout();
+			req.logout((function(err) {
+				if (err) { throw AuthenticationError.invalidUserIdOrPassword(); }
+				res.redirect('/');
+			  }));
 			res.sendStatus(200);
 		}
 	}
