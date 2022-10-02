@@ -11,7 +11,7 @@ RUN apt-get update && \
 	git config --global uploadpack.allowTipSHA1InWant true && \
 	git config --global uploadpack.allowReachableSHA1InWant true
 WORKDIR /ccx
-CMD ["sh"]
+# CMD ["sh"]
 
 FROM node:14-alpine as builder
 ENV NODE_ENV=development
@@ -48,4 +48,4 @@ COPY packages/auth /ccx/packages/auth
 COPY packages/core /ccx/packages/core
 WORKDIR /ccx
 RUN yarn install --production=false
-CMD ["yarn", "run", "start"]
+# CMD ["yarn", "run", "start"]
