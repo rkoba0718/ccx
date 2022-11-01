@@ -48,4 +48,22 @@ COPY packages/auth /ccx/packages/auth
 COPY packages/core /ccx/packages/core
 WORKDIR /ccx
 RUN yarn install --production=false
+
+COPY bigclonebench.pgsql /ccx
+RUN set -eux && \
+    apt-get update && \
+	apt-get -y install sudo && \
+    sudo apt update
+RUN	sudo apt-get install -y postgresql postgresql-contrib && \
+	sudo service postgresql restart
+RUN sudo service postgresql start && \
+	sudo -u postgres psql && \
+    create role "bigclonebench" with superuser login createdb; && \
+	create role "postgresql" with superuser login createdb createrole replication bypassrls; && \
+	create role "root" with superuser login createdb createrole password 'root'; && \
+	create database "root"; && \
+	\q && \
+    psql -f bigclonebench.pgsql && \
+    psql -U root -d root
+
 # CMD ["yarn", "run", "start"]
