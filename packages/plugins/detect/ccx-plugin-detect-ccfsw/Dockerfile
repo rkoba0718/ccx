@@ -1,4 +1,4 @@
-FROM gradle as builder
+FROM gradle:jdk8-focal as builder
 COPY . /plugin
 WORKDIR /plugin
 RUN wget https://github.com/YuichiSemura/CCFinderSW/raw/master/build/distributions/CCFinderSW-1.0.zip && \

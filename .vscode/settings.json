@@ -12,7 +12,6 @@
 	"eslint.trace.server": "verbose",
 	"eslint.packageManager": "yarn",
 	"eslint.workingDirectories": [{ "pattern": "./packages/*/"}],
-	"prettier.packageManager": "yarn",
 	"prettier.tabWidth": 4,
 	"prettier.trailingComma": "none",
 	"prettier.useTabs": true,
