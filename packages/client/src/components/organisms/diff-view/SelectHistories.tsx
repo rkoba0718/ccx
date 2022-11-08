@@ -242,12 +242,11 @@ const SelectHistories: React.FunctionComponent<P> = ({ ids, results }) => {
 		const { revision } = results[state.baseId].request.targets[0];
 
 
-		
 		history.push({
 			pathname: `/home/${project}/diff/plot`,
 			search: `?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`
 		});
-		
+
 		/*
 		history.push(
 			`/home/${project}/diff/plot/?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`

@@ -8,6 +8,7 @@ import {
 	Grid,
 	Button
 } from "@material-ui/core";
+import {Bar} from "react-chartjs-2";
 
 import { MappingResult } from "common/all/types/EDetectionResult";
 import FilePath from "common/all/types/FilePath";
@@ -205,6 +206,24 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 		);
 	}, [project, base, comparing, revision, state]);
 
+	const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+
+	const bardata = {
+		labels,
+		datasets: [
+			{
+				label: 'Dataset 1',
+				data: [65, 59, 80, 81, 56, 55, 40],
+				backgroundColor: 'rgba(255, 99, 132, 0.5)',
+			  },
+			  {
+				label: 'Dataset 2',
+				data: [32, 43, 44, 64, 76, 43, 12],
+				backgroundColor: 'rgba(53, 162, 235, 0.5)',
+			  },
+		],
+	};
+
 	return (
 		<div>
 			<Box>
@@ -229,6 +248,7 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 			<Box mt={2}>
 				<DiffGrid onCellClick={onCellClick} />
 			</Box>
+			<Bar data={bardata}/>
 		</div>
 	);
 };
