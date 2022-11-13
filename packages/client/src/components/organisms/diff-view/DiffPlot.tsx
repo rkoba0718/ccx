@@ -8,7 +8,7 @@ import {
 	Grid,
 	Button
 } from "@material-ui/core";
-import {Bar} from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
 import { MappingResult } from "common/all/types/EDetectionResult";
 import FilePath from "common/all/types/FilePath";
@@ -159,7 +159,6 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 	const { pathname } = useLocation();
 	const params = useQueryParam();
 
-
 	const { base, comparing, revision, result } = useMappingResult();
 
 	const [state, dispatch] = React.useReducer(
@@ -174,7 +173,7 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 
 		if (x === null || y === null) {
 			history.push(`${pathname}?b=${base}&c=${comparing}&r=${revision}`);
-			//history.push(`${pathname}?b=${base}&c=${comparing}&r=${revision}`);
+			// history.push(`${pathname}?b=${base}&c=${comparing}&r=${revision}`);
 			return;
 		}
 		dispatch({
@@ -189,13 +188,12 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 
 	const onCellClick = React.useCallback(
 		(x: number, y: number) => {
-
 			history.push(
 				`${pathname}?b=${base}&c=${comparing}&r=${revision}&x=${x}&y=${y}`
 			);
 		},
 		[pathname, base, comparing, revision, dispatch, result]
-		//[pathname, , base, comparing, revision, dispatch, result]
+		// [pathname, , base, comparing, revision, dispatch, result]
 	);
 
 	const onCompareClick = React.useCallback(() => {
@@ -206,22 +204,22 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 		);
 	}, [project, base, comparing, revision, state]);
 
-	const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+	const labels = ["1 月", "2 月", "3 月", "4 月", "5 月", "6 月"];
 
 	const bardata = {
 		labels,
 		datasets: [
 			{
-				label: 'Dataset 1',
+				label: "Dataset 1",
 				data: [65, 59, 80, 81, 56, 55, 40],
-				backgroundColor: 'rgba(255, 99, 132, 0.5)',
-			  },
-			  {
-				label: 'Dataset 2',
+				backgroundColor: "rgba(255, 99, 132, 0.5)"
+			},
+			{
+				label: "Dataset 2",
 				data: [32, 43, 44, 64, 76, 43, 12],
-				backgroundColor: 'rgba(53, 162, 235, 0.5)',
-			  },
-		],
+				backgroundColor: "rgba(53, 162, 235, 0.5)"
+			}
+		]
 	};
 
 	return (
@@ -248,7 +246,7 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 			<Box mt={2}>
 				<DiffGrid onCellClick={onCellClick} />
 			</Box>
-			<Bar data={bardata}/>
+			{/* <Bar data={bardata} /> */}
 		</div>
 	);
 };
