@@ -8,12 +8,33 @@ import {
 	Grid,
 	Button
 } from "@material-ui/core";
+import {
+	Chart as ChartJS,
+	CategoryScale,
+	LinearScale,
+	BarElement,
+	Title,
+	Tooltip,
+	Legend
+} from "chart.js";
+
+import { Bar } from "react-chartjs-2";
+import { faker } from "@faker-js/faker";
 
 import { MappingResult } from "common/all/types/EDetectionResult";
 import FilePath from "common/all/types/FilePath";
 
 import useMappingResult from "hooks/useMappingResult";
 import useQueryParam from "hooks/useQueryParam";
+
+ChartJS.register(
+	CategoryScale,
+	LinearScale,
+	BarElement,
+	Title,
+	Tooltip,
+	Legend
+);
 
 type State = {
 	x: number;
@@ -158,7 +179,6 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 	const { pathname } = useLocation();
 	const params = useQueryParam();
 
-
 	const { base, comparing, revision, result } = useMappingResult();
 
 	const [state, dispatch] = React.useReducer(
@@ -173,7 +193,7 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 
 		if (x === null || y === null) {
 			history.push(`${pathname}?b=${base}&c=${comparing}&r=${revision}`);
-			//history.push(`${pathname}?b=${base}&c=${comparing}&r=${revision}`);
+			// history.push(`${pathname}?b=${base}&c=${comparing}&r=${revision}`);
 			return;
 		}
 		dispatch({
@@ -188,13 +208,12 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 
 	const onCellClick = React.useCallback(
 		(x: number, y: number) => {
-
 			history.push(
 				`${pathname}?b=${base}&c=${comparing}&r=${revision}&x=${x}&y=${y}`
 			);
 		},
 		[pathname, base, comparing, revision, dispatch, result]
-		//[pathname, , base, comparing, revision, dispatch, result]
+		// [pathname, , base, comparing, revision, dispatch, result]
 	);
 
 	const onCompareClick = React.useCallback(() => {
@@ -205,30 +224,136 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 		);
 	}, [project, base, comparing, revision, state]);
 
+	const labels: string[] = [];
+	const baseData: number[] = [];
+	const comparingData: number[] = [];
+	const matchData: number[] = [];
+	Object.entries(result.clonePairIdsPerFile).forEach(([, c]) => {
+		labels.push(c.path);
+		if (c.baseClonePairIds != null) {
+			baseData.push(c.baseClonePairIds.length);
+		} else {
+			baseData.push(0);
+		}
+		if (c.comparingClonePairIds != null) {
+			comparingData.push(c.comparingClonePairIds.length);
+		} else {
+			comparingData.push(0);
+		}
+		if (c.matchClonePairIds != null) {
+			matchData.push(c.matchClonePairIds.length);
+		} else {
+			matchData.push(0);
+		}
+	});
+
+	const baseSum = baseData.reduce((acc, cur) => {
+		return acc + cur;
+	});
+	const baseAve = baseSum / Number(baseData.length);
+
+	const comparingSum = comparingData.reduce((acc, cur) => {
+		return acc + cur;
+	});
+	const comparingAve = comparingSum / Number(comparing.length);
+
+	const ymax = Math.max(baseAve, comparingAve);
+
+	// const baseDataCopy = [...baseData];
+	// const comparingDataCopy = [...comparingData];
+
+	// baseDataCopy.sort((a, b) => a - b);
+	// comparingDataCopy.sort((a, b) => a - b);
+
+	// const baseThirdQuartile =
+	// 	baseDataCopy[Math.ceil((Number(baseDataCopy.length) * 3) / 4)];
+	// const comparingThirdQuartile =
+	// 	comparingDataCopy[
+	// 		Math.ceil((Number(comparingDataCopy.length) * 3) / 4)
+	// 	];
+
+	// const ymax = Math.max(baseThirdQuartile, comparingThirdQuartile);
+
+	const data = {
+		// x 軸のラベル
+		labels,
+		datasets: [
+			{
+				label: "Base Clones",
+				data: baseData,
+				backgroundColor: "rgba(255, 99, 132, 0.5)"
+			},
+			{
+				label: "Comparing",
+				data: comparingData,
+				backgroundColor: "rgba(53, 162, 235, 0.5)"
+			},
+			{
+				label: "Match Clones",
+				data: matchData,
+				backgroundColor: "rgba(167, 87, 168, 0.5)"
+			}
+		]
+	};
+
+	const options = {
+		responsive: false,
+		scales: {
+			yAxis: {
+				max: ymax + 20
+			}
+			// xAxis: {
+			// 	// display: false
+			// 	stacked: true
+			// },
+			// yBase: {
+			// 	max: ymax + 20
+			// 	// stacked: true
+			// },
+			// yComparing: {
+			// 	max: ymax + 20
+			// }
+		}
+	};
+
 	return (
 		<div>
-			<Box>
-				<Grid container spacing={2} alignItems="center">
-					<Grid item>
-						<Typography>{state.xPath}</Typography>
-						<Typography>{state.yPath}</Typography>
+			<div>
+				<Box>
+					<Grid container spacing={2} alignItems="center">
+						<Grid item>
+							<Typography>{state.xPath}</Typography>
+							<Typography>{state.yPath}</Typography>
+						</Grid>
+						<Grid item>
+							<Button
+								disabled={state.disabled}
+								variant="contained"
+								color="secondary"
+								onClick={onCompareClick}
+							>
+								Compare Files
+							</Button>
+						</Grid>
 					</Grid>
-					<Grid item>
-						<Button
-							disabled={state.disabled}
-							variant="contained"
-							color="secondary"
-							onClick={onCompareClick}
-						>
-							Compare Files
-						</Button>
-					</Grid>
-				</Grid>
-			</Box>
-			<Divider />
-			<Box mt={2}>
-				<DiffGrid onCellClick={onCellClick} />
-			</Box>
+				</Box>
+				<Divider />
+				<Box mt={2}>
+					<DiffGrid onCellClick={onCellClick} />
+				</Box>
+			</div>
+			<div>
+				<Bar
+					options={options}
+					data={data}
+					width={
+						6 *
+						10 *
+						Number(Object.keys(result.clonePairIdsPerFile).length)
+					}
+					height={1000}
+				/>
+			</div>
 		</div>
 	);
 };

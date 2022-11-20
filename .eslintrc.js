@@ -28,7 +28,8 @@ module.exports = {
 		"import/no-unresolved": "off",
 		"no-useless-constructor": "off",
 		"import/prefer-default-export": "off",
-		"default-case": "off"
+		"default-case": "off",
+		"no-use-before-define": "off"
 	},
 	parser: "@typescript-eslint/parser",
 	parserOptions: {

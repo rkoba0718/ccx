@@ -20,6 +20,8 @@ import {
 	InternalHistoryEntityId
 } from "common/server-only/value-objects/EntityId";
 import ProjectRepository from "infrastructure/repositories/ProjectRepository";
+import { clone } from "io-ts-types";
+import { badRequest } from "@hapi/boom";
 
 const router = express.Router({ mergeParams: true });
 
@@ -48,18 +50,22 @@ const map = (
 	const baseToComparing: MappingResult["baseToComparing"] = {};
 	const comparingToBase: MappingResult["comparingToBase"] = {};
 	const allGrids: MappingResult["allGrids"] = {};
+	const clonePairIdsPerFile: MappingResult["clonePairIdsPerFile"] = {};
+	let baseFileCtr = 0;
 	console.log("Object");
 	console.log(JSON.stringify(Object));
 	Object.entries(base.files).forEach(([id, f]) => {
 		allFiles[fileCtr] = { path: f, base: Number(id) as FileId };
+		clonePairIdsPerFile[fileCtr] = { path: f };
 		allGrids[fileCtr] = {};
 		fileCtr += 1;
 	});
+	baseFileCtr = fileCtr;
 
 	Object.entries(comparing.files).forEach(([id, f]) => {
 		const file = Object.entries(allFiles).find(([, ff]) => ff.path === f);
-		console.log("file");
-		console.log(file);
+		// console.log("file");
+		// console.log(file);
 		if (file) {
 			comparingToAllF[Number(id)] = file[1].base;
 			allFiles[Number(file[0])] = {
@@ -68,16 +74,59 @@ const map = (
 			};
 		} else {
 			allFiles[fileCtr] = { path: f, comparing: Number(id) as FileId };
+			clonePairIdsPerFile[fileCtr] = { path: f };
 			allGrids[fileCtr] = {};
 			comparingToAllF[Number(id)] = fileCtr as FileId;
 			fileCtr += 1;
 		}
 	});
 
+	for (let i = 0; i < baseFileCtr; i += 1) {
+		let baseCPIds: ClonePairId[] = [];
+		// let mathBaseCPIds: ClonePairId[] = [];
+		baseCPIds = Object.entries(base.clonePairs)
+			.filter(([, bcp]) => bcp.f1.file === i || bcp.f2.file === i)
+			.map(([id]) => Number(id) as ClonePairId);
+		// mathBaseCPIds = Object.entries(base.clonePairs)
+		// 	.filter(([, mcp]) => mcp.f1.file === i && mcp.f2.file === i)
+		// 	.map(([id]) => Number(id) as ClonePairId);
+		// const CPIds = baseCPIds.concat(mathBaseCPIds);
+		clonePairIdsPerFile[i] = {
+			...clonePairIdsPerFile[i],
+			// baseClonePairIds: CPIds
+			baseClonePairIds: baseCPIds
+		};
+	}
+
+	const allFilesSize = Object.keys(allFiles).length;
+	for (let i = 0; i < allFilesSize; i += 1) {
+		let comparingCPIds: ClonePairId[] = [];
+		// let mathComparingCPIds: ClonePairId[] = [];
+		const cFileId = allFiles[i].comparing;
+		if (cFileId != null) {
+			comparingCPIds = Object.entries(comparing.clonePairs)
+				.filter(
+					([, ccp]) =>
+						ccp.f1.file === cFileId || ccp.f2.file === cFileId
+				)
+				.map(([id]) => Number(id) as ClonePairId);
+			// mathComparingCPIds = Object.entries(comparing.clonePairs)
+			// 	.filter(
+			// 		([, mcp]) =>
+			// 			mcp.f1.file === cFileId && mcp.f2.file === cFileId
+			// 	)
+			// 	.map(([id]) => Number(id) as ClonePairId);
+			// const CPIds = comparingCPIds.concat(mathComparingCPIds);
+			clonePairIdsPerFile[i] = {
+				...clonePairIdsPerFile[i],
+				// comparingClonePairIds: CPId
+				comparingClonePairIds: comparingCPIds
+			};
+		}
+	}
+
 	Object.entries(allFiles).forEach(([y, yf]) => {
-
 		Object.entries(allFiles).forEach(([x, xf]) => {
-
 			const xx = Number(x);
 			const yy = Number(y);
 
@@ -85,8 +134,7 @@ const map = (
 				let baseCP: ClonePairId[] = [];
 				let comparingCP: ClonePairId[] = [];
 
-				if (yf.base!=null && xf.base!=null) {
-					
+				if (yf.base != null && xf.base != null) {
 					const f1 = Math.min(yf.base, xf.base);
 					const f2 = Math.max(yf.base, xf.base);
 
@@ -97,7 +145,7 @@ const map = (
 						.map(([id]) => Number(id) as ClonePairId);
 				}
 
-				if (yf.comparing!=null && xf.comparing!=null) {
+				if (yf.comparing != null && xf.comparing != null) {
 					const f1 = Math.min(yf.comparing, xf.comparing);
 					const f2 = Math.max(yf.comparing, xf.comparing);
 
@@ -145,6 +193,52 @@ const map = (
 		});
 	});
 
+	console.log(baseToComparing);
+	console.log("-----");
+	console.log(comparingToBase);
+
+	if (baseToComparing != null) {
+		const baseToComparingIndex = Object.keys(baseToComparing);
+		for (let i = 0; i < baseToComparingIndex.length; i += 1) {
+			const number = baseToComparingIndex[i];
+			Object.entries(clonePairIdsPerFile).forEach(([c, cp]) => {
+				const id = Number(c);
+				if (
+					cp.baseClonePairIds?.includes(Number(number) as ClonePairId)
+				) {
+					const matchCPIds = baseToComparing[Number(number)];
+					if (cp.matchClonePairIds != null) {
+						const preMatchClonePairIds: ClonePairId[] = [
+							...cp.matchClonePairIds
+						];
+						const matchCPIdsSize = matchCPIds.length;
+						for (let j = 0; j < matchCPIdsSize; j += 1) {
+							if (
+								!preMatchClonePairIds.includes(
+									Number(matchCPIds[j]) as ClonePairId
+								)
+							) {
+								preMatchClonePairIds.push(
+									Number(matchCPIds[j]) as ClonePairId
+								);
+							}
+						}
+						clonePairIdsPerFile[id] = {
+							...cp,
+							matchClonePairIds: preMatchClonePairIds
+						};
+					} else {
+						clonePairIdsPerFile[id] = {
+							...cp,
+							matchClonePairIds: matchCPIds
+						};
+					}
+				}
+			});
+		}
+	}
+	console.log(clonePairIdsPerFile);
+
 	return {
 		base,
 		comparing,
@@ -152,7 +246,8 @@ const map = (
 		baseToComparing,
 		comparingToBase,
 		allFiles,
-		allGrids
+		allGrids,
+		clonePairIdsPerFile
 	};
 };
 

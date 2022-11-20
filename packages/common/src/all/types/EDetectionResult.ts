@@ -35,6 +35,15 @@ export type MappingResult = {
 			comparing?: FileId;
 		}
 	>;
+	clonePairIdsPerFile: Record<
+		number,
+		{
+			path: FilePath;
+			baseClonePairIds?: ClonePairId[];
+			comparingClonePairIds?: ClonePairId[];
+			matchClonePairIds?: ClonePairId[];
+		}
+	>;
 };
 
 export const convertE = (result: DetectionResult): EDetectionResult => {
