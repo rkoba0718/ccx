@@ -11,7 +11,8 @@ import {
 import MappingResultProvider from "components/providers/MappingResultProvider";
 
 import SelectHistories from "components/organisms/diff-view/SelectHistories";
-import DiffPlot from "components/organisms/diff-view/DiffPlot";
+import DiffPlotClonePair from "components/organisms/diff-view/DiffPlotClonePair";
+import DiffPlotClones from "components/organisms/diff-view/DiffPlotClones";
 import DiffView from "components/organisms/diff-view/DiffView";
 import HistoryId from "common/all/types/HistoryId";
 import HistoryEntityForClient from "common/all/types/HistoryEntityForClient";
@@ -64,8 +65,11 @@ const Diff: React.FunctionComponent<Props> = (props: Props) => {
 			</Route>
 			<Route path="/home/:project/diff/">
 				<MappingResultProvider>
-					<Route exact path="/home/:project/diff/plot">
-						<DiffPlot project={project} />
+					<Route exact path="/home/:project/diff/plot/clonepair">
+						<DiffPlotClonePair project={project} />
+					</Route>
+					<Route exact path="/home/:project/diff/plot/clones">
+						<DiffPlotClones project={project} />
 					</Route>
 					<Route exact path="/home/:project/diff/view">
 						<DiffView project={project} />

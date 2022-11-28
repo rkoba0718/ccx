@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef  } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import {
 	Box,
@@ -18,7 +18,12 @@ import {
 	Legend
 } from "chart.js";
 
-import { Bar } from "react-chartjs-2";
+import {
+	Bar,
+	getDatasetAtEvent,
+	getElementAtEvent,
+	getElementsAtEvent
+} from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
 
 import { MappingResult } from "common/all/types/EDetectionResult";
@@ -174,7 +179,7 @@ type Props = {
 };
 
 const sx = { mt: 2 };
-const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
+const DiffPlotClonePair: React.FunctionComponent<Props> = ({ project }) => {
 	const history = useHistory();
 	const { pathname } = useLocation();
 	const params = useQueryParam();
@@ -224,138 +229,32 @@ const DiffPlot: React.FunctionComponent<Props> = ({ project }) => {
 		);
 	}, [project, base, comparing, revision, state]);
 
-	const labels: string[] = [];
-	const baseData: number[] = [];
-	const comparingData: number[] = [];
-	const matchData: number[] = [];
-	Object.entries(result.clonePairIdsPerFile).forEach(([, c]) => {
-		labels.push(c.path);
-		if (c.baseClonePairIds != null) {
-			baseData.push(c.baseClonePairIds.length);
-		} else {
-			baseData.push(0);
-		}
-		if (c.comparingClonePairIds != null) {
-			comparingData.push(c.comparingClonePairIds.length);
-		} else {
-			comparingData.push(0);
-		}
-		if (c.matchClonePairIds != null) {
-			matchData.push(c.matchClonePairIds.length);
-		} else {
-			matchData.push(0);
-		}
-	});
-
-	const baseSum = baseData.reduce((acc, cur) => {
-		return acc + cur;
-	});
-	const baseAve = baseSum / Number(baseData.length);
-
-	const comparingSum = comparingData.reduce((acc, cur) => {
-		return acc + cur;
-	});
-	const comparingAve = comparingSum / Number(comparing.length);
-
-	const ymax = Math.max(baseAve, comparingAve);
-
-	// const baseDataCopy = [...baseData];
-	// const comparingDataCopy = [...comparingData];
-
-	// baseDataCopy.sort((a, b) => a - b);
-	// comparingDataCopy.sort((a, b) => a - b);
-
-	// const baseThirdQuartile =
-	// 	baseDataCopy[Math.ceil((Number(baseDataCopy.length) * 3) / 4)];
-	// const comparingThirdQuartile =
-	// 	comparingDataCopy[
-	// 		Math.ceil((Number(comparingDataCopy.length) * 3) / 4)
-	// 	];
-
-	// const ymax = Math.max(baseThirdQuartile, comparingThirdQuartile);
-
-	const data = {
-		// x 軸のラベル
-		labels,
-		datasets: [
-			{
-				label: "Base Clones",
-				data: baseData,
-				backgroundColor: "rgba(255, 99, 132, 0.5)"
-			},
-			{
-				label: "Comparing",
-				data: comparingData,
-				backgroundColor: "rgba(53, 162, 235, 0.5)"
-			},
-			{
-				label: "Match Clones",
-				data: matchData,
-				backgroundColor: "rgba(167, 87, 168, 0.5)"
-			}
-		]
-	};
-
-	const options = {
-		responsive: false,
-		scales: {
-			yAxis: {
-				max: ymax + 20
-			}
-			// xAxis: {
-			// 	// display: false
-			// 	stacked: true
-			// },
-			// yBase: {
-			// 	max: ymax + 20
-			// 	// stacked: true
-			// },
-			// yComparing: {
-			// 	max: ymax + 20
-			// }
-		}
-	};
-
 	return (
 		<div>
-			<div>
-				<Box>
-					<Grid container spacing={2} alignItems="center">
-						<Grid item>
-							<Typography>{state.xPath}</Typography>
-							<Typography>{state.yPath}</Typography>
-						</Grid>
-						<Grid item>
-							<Button
-								disabled={state.disabled}
-								variant="contained"
-								color="secondary"
-								onClick={onCompareClick}
-							>
-								Compare Files
-							</Button>
-						</Grid>
+			<Box>
+				<Grid container spacing={2} alignItems="center">
+					<Grid item>
+						<Typography>{state.xPath}</Typography>
+						<Typography>{state.yPath}</Typography>
 					</Grid>
-				</Box>
-				<Divider />
-				<Box mt={2}>
-					<DiffGrid onCellClick={onCellClick} />
-				</Box>
-			</div>
-			<div>
-				<Bar
-					options={options}
-					data={data}
-					width={
-						6 *
-						10 *
-						Number(Object.keys(result.clonePairIdsPerFile).length)
-					}
-					height={1000}
-				/>
-			</div>
+					<Grid item>
+						<Button
+							disabled={state.disabled}
+							variant="contained"
+							color="secondary"
+							onClick={onCompareClick}
+						>
+							Compare Files
+						</Button>
+					</Grid>
+				</Grid>
+			</Box>
+			<Divider />
+			<Box mt={2}>
+				<DiffGrid onCellClick={onCellClick} />
+			</Box>
 		</div>
 	);
 };
 
-export default DiffPlot;
+export default DiffPlotClonePair;

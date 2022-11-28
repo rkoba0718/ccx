@@ -238,11 +238,11 @@ const SelectHistories: React.FunctionComponent<P> = ({ ids, results }) => {
 		value: unknown;
 	}> = React.useCallback(onChange("change-comparing"), [onChange]);
 
-	const onClick: React.MouseEventHandler<HTMLButtonElement> = React.useCallback(() => {
+	const onClonePairClick: React.MouseEventHandler<HTMLButtonElement> = React.useCallback(() => {
 		const { revision } = results[state.baseId].request.targets[0];
 
 		history.push({
-			pathname: `/home/${project}/diff/plot`,
+			pathname: `/home/${project}/diff/plot/clonepair`,
 			search: `?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`
 		});
 
@@ -252,6 +252,15 @@ const SelectHistories: React.FunctionComponent<P> = ({ ids, results }) => {
 		);
 		*/
 		// `/home/${project}/diff/plot?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`
+	}, [project, state]);
+
+	const onClonesClick: React.MouseEventHandler<HTMLButtonElement> = React.useCallback(() => {
+		const { revision } = results[state.baseId].request.targets[0];
+
+		history.push({
+			pathname: `/home/${project}/diff/plot/clones`,
+			search: `?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`
+		});
 	}, [project, state]);
 
 	return state.comparableResultIds.length > 0 ? (
@@ -305,15 +314,31 @@ const SelectHistories: React.FunctionComponent<P> = ({ ids, results }) => {
 			<TimelineItem>
 				<TimelineSeparator>
 					<TimelineDot />
+					<TimelineConnector />
 				</TimelineSeparator>
 				<TimelineContent>
 					<Button
 						color="secondary"
 						variant="contained"
 						disabled={state.comparableResultIds.length === 0}
-						onClick={onClick}
+						onClick={onClonePairClick}
 					>
-						Compare history
+						Compare Clone Pairs
+					</Button>
+				</TimelineContent>
+			</TimelineItem>
+			<TimelineItem>
+				<TimelineSeparator>
+					<TimelineDot />
+				</TimelineSeparator>
+				<TimelineContent>
+					<Button
+						color="secondary"
+						variant="contained"
+						disabled={state.comparableResultIds.length === 0}
+						onClick={onClonesClick}
+					>
+						Compare Clones
 					</Button>
 				</TimelineContent>
 			</TimelineItem>

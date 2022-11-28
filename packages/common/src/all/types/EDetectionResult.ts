@@ -4,6 +4,7 @@ import ClonePair from "./ClonePair";
 import ClonePairId from "./ClonePairId";
 import Environment from "./Environment";
 import DetectionResult from "./DetectionResult";
+import Fragment from "./Fragment";
 
 type EDetectionResult = {
 	environment: Environment;
@@ -35,13 +36,14 @@ export type MappingResult = {
 			comparing?: FileId;
 		}
 	>;
-	clonePairIdsPerFile: Record<
+	clonesPerFile: Record<
 		number,
 		{
 			path: FilePath;
-			baseClonePairIds?: ClonePairId[];
-			comparingClonePairIds?: ClonePairId[];
-			matchClonePairIds?: ClonePairId[];
+			baseClones?: Fragment[];
+			comparingClones?: Fragment[];
+			matchBaseClones?: Fragment[];
+			matchComparingClones?: Fragment[];
 		}
 	>;
 };
