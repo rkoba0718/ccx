@@ -65,8 +65,8 @@ const map = (
 
 	Object.entries(comparing.files).forEach(([id, f]) => {
 		const file = Object.entries(allFiles).find(([, ff]) => ff.path === f);
-		// console.log("file");
-		// console.log(file);
+		console.log("file");
+		console.log(file);
 		if (file) {
 			comparingToAllF[Number(id)] = file[1].base;
 			allFiles[Number(file[0])] = {
@@ -182,13 +182,9 @@ const map = (
 		if (c.baseClones && c.comparingClones) {
 			for (let i = 0; i < c.baseClones?.length; i += 1) {
 				for (let j = 0; j < c.comparingClones?.length; j += 1) {
-					// if (cv(c.baseClones[i], c.comparingClones[j])) {
-					// 	matchBaseClone.push(c.baseClones[i]);
-					// 	matchComparingClone.push(c.comparingClones[i]);
-					// }
 					if (
-						JSON.stringify(c.baseClones[i]) ===
-						JSON.stringify(c.comparingClones[j])
+						cv(c.baseClones[i], c.comparingClones[j]) &&
+						cv(c.comparingClones[j], c.baseClones[i])
 					) {
 						matchBaseClone.push(c.baseClones[i]);
 						matchComparingClone.push(c.comparingClones[j]);

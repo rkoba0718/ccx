@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import {
 	Box,
@@ -6,7 +6,8 @@ import {
 	Typography,
 	Divider,
 	Grid,
-	Button
+	Button,
+	makeStyles
 } from "@material-ui/core";
 import {
 	Chart as ChartJS,
@@ -18,19 +19,17 @@ import {
 	Legend
 } from "chart.js";
 
-import {
-	Bar,
-	getDatasetAtEvent,
-	getElementAtEvent,
-	getElementsAtEvent
-} from "react-chartjs-2";
-import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { Bar } from "react-chartjs-2";
 
 import { MappingResult } from "common/all/types/EDetectionResult";
 import FilePath from "common/all/types/FilePath";
+import SplitPane from "components/atoms/SplitPane";
+import Explorer from "components/organisms/result-view/Explorer";
+import DiffNewView from "components/organisms/diff-view/DiffNewView";
 
 import useMappingResult from "hooks/useMappingResult";
 import useQueryParam from "hooks/useQueryParam";
+// import SplitPane from "react-split-pane";
 
 ChartJS.register(
 	CategoryScale,
@@ -59,6 +58,14 @@ type Action = {
 	type: "set";
 	payload: SetActionPayload;
 };
+
+const useStyles = makeStyles({
+	root: {
+		"& > *": {
+			height: "100%"
+		}
+	}
+});
 
 const setAction = ({ x, y, result }: SetActionPayload): State => ({
 	x,
@@ -143,13 +150,6 @@ type DiffGridProps = {
 	onCellClick: (x: number, y: number) => void;
 };
 
-/*
-const diffGridSx: BoxProps["sx"] = {
-	flexWrap: "nowrap",
-	display: "flex"
-};
-*/
-
 // eslint-disable-next-line react/display-name
 const DiffGrid: React.FunctionComponent<DiffGridProps> = React.memo(
 	({ onCellClick }) => {
@@ -183,6 +183,7 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 	const history = useHistory();
 	const { pathname } = useLocation();
 	const params = useQueryParam();
+	const { root } = useStyles();
 
 	const { base, comparing, revision, result } = useMappingResult();
 
@@ -312,33 +313,57 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 					display: false
 				}
 			}
-			// yBase: {
-			// 	max: ymax + 20
-			// 	// stacked: true
-			// },
-			// yComparing: {
-			// 	max: ymax + 20
-			// }
 		}
 	};
 
+	const getWindowDimensions = () => {
+		const { innerWidth: width, innerHeight: height } = window;
+		return {
+			width,
+			height
+		};
+	};
+
+	const [windowDimentions, setWindowDimentions] = useState(
+		getWindowDimensions()
+	);
+
+	useEffect(() => {
+		const onResize = () => {
+			setWindowDimentions(getWindowDimensions());
+		};
+		window.addEventListener("resize", onResize);
+		return () => window.removeEventListener("resize", onResize);
+	}, []);
+
 	return (
-		<ScrollSync>
-			<div>
-				<ScrollSyncPane>
-					<Bar
-						options={options}
-						data={data}
-						width={
-							3 *
-							10 *
-							Number(Object.keys(result.clonesPerFile).length)
-						}
-						height={1000}
-					/>
-				</ScrollSyncPane>
-			</div>
-		</ScrollSync>
+		// <ScrollSync>
+		// 	<div>
+		// 		<ScrollSyncPane>
+		// 			<Bar
+		// 				options={options}
+		// 				data={data}
+		// 				width={
+		// 					3 *
+		// 					10 *
+		// 					Number(Object.keys(result.clonesPerFile).length)
+		// 				}
+		// 				height={700}
+		// 			/>
+		// 		</ScrollSyncPane>
+		// 	</div>
+		// </ScrollSync>
+		<>
+			<Bar
+				options={options}
+				data={data}
+				width={
+					3 * 10 * Number(Object.keys(result.clonesPerFile).length)
+				}
+				height={windowDimentions.height * 0.3}
+			/>
+			<DiffNewView clonesPerFile={result.clonesPerFile} />
+		</>
 	);
 };
 
