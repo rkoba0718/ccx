@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
-
+	"strings"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/go-git/go-git/v5"
 

@@ -25,10 +25,16 @@ func rootPostHandler(r *types.Registry) gin.HandlerFunc {
 
 		if p != r.GlobalConfig.Prime {
 			log.Printf("error: Received configuration from other controller: %v", p)
+			log.Printf("error: Received configuration from other controller: %#v:::%#v", p,r.GlobalConfig.Prime)
+            log.Printf("error: Received configuration from other controller: %v:::%v", p,r.GlobalConfig.Prime)
+            log.Printf("error: Received configuration from other controller: %#v", p)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Restart "})
 			return
 		}
 
+		var workerType value.WorkerType
+        workerType = value.WindowsDocker
+        *r.GlobalConfig.Worker.WorkerType=workerType
 		log.Printf("info: Received configuration from the same controller")
 		c.JSON(http.StatusOK, gin.H{"type": *r.GlobalConfig.Worker.WorkerType})
 		if err = r.Repository.PluginFileSystem.SyncAll(); err != nil {

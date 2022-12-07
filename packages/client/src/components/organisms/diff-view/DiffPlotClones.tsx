@@ -230,28 +230,47 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 		);
 	}, [project, base, comparing, revision, state]);
 
+	const diffs: {
+		id: number;
+		diff: number;
+	}[] = [];
+
+	Object.entries(result.clonesPerFile).forEach(([id, c]) => {
+		diffs.push({
+			id: Number(id),
+			diff: c.diff
+		});
+	});
+
+	diffs.sort((a, b) => b.diff - a.diff);
+
+	const c = result.clonesPerFile;
 	const labels: string[] = [];
 	const baseData: number[] = [];
 	const comparingData: number[] = [];
 	const matchData: number[] = [];
-	Object.entries(result.clonesPerFile).forEach(([, c]) => {
-		labels.push(c.path);
-		if (c.baseClones != null) {
-			baseData.push(c.baseClones.length);
+	const diffsSize = diffs.length;
+	for (let i = 0; i < diffsSize; i += 1) {
+		labels.push(c[diffs[i].id].path);
+		const baseClone = c[diffs[i].id].baseClones;
+		const comparingClone = c[diffs[i].id].comparingClones;
+		const matchClone = c[diffs[i].id].matchBaseClones;
+		if (baseClone) {
+			baseData.push(baseClone.length);
 		} else {
 			baseData.push(0);
 		}
-		if (c.comparingClones != null) {
-			comparingData.push(c.comparingClones.length);
+		if (comparingClone) {
+			comparingData.push(comparingClone.length);
 		} else {
 			comparingData.push(0);
 		}
-		if (c.matchBaseClones != null) {
-			matchData.push(c.matchBaseClones.length);
+		if (matchClone) {
+			matchData.push(matchClone.length);
 		} else {
 			matchData.push(0);
 		}
-	});
+	}
 
 	const baseSum = baseData.reduce((acc, cur) => {
 		return acc + cur;
@@ -306,7 +325,7 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 		responsive: false,
 		scales: {
 			yAxis: {
-				max: ymax + 20
+				max: ymax + 50
 			},
 			xAxis: {
 				ticks: {

@@ -57,7 +57,7 @@ const map = (
 	console.log(JSON.stringify(Object));
 	Object.entries(base.files).forEach(([id, f]) => {
 		allFiles[fileCtr] = { path: f, base: Number(id) as FileId };
-		clonesPerFile[fileCtr] = { path: f };
+		clonesPerFile[fileCtr] = { path: f, diff: 0 };
 		allGrids[fileCtr] = {};
 		fileCtr += 1;
 	});
@@ -75,7 +75,7 @@ const map = (
 			};
 		} else {
 			allFiles[fileCtr] = { path: f, comparing: Number(id) as FileId };
-			clonesPerFile[fileCtr] = { path: f };
+			clonesPerFile[fileCtr] = { path: f, diff: 0 };
 			allGrids[fileCtr] = {};
 			comparingToAllF[Number(id)] = fileCtr as FileId;
 			fileCtr += 1;
@@ -179,33 +179,50 @@ const map = (
 	Object.entries(clonesPerFile).forEach(([id, c]) => {
 		const matchBaseClone: Fragment[] = [];
 		const matchComparingClone: Fragment[] = [];
+		let diffs = 0;
 		if (c.baseClones && c.comparingClones) {
+			const baseCloneSize = c.baseClones.length;
+			const comparingCloneSize = c.comparingClones.length;
+			let matches = 0;
 			for (let i = 0; i < c.baseClones?.length; i += 1) {
 				for (let j = 0; j < c.comparingClones?.length; j += 1) {
 					if (
 						cv(c.baseClones[i], c.comparingClones[j]) &&
 						cv(c.comparingClones[j], c.baseClones[i])
 					) {
+						if (!matchBaseClone.includes(c.baseClones[i])) {
+							matches += 1;
+						}
+						if (
+							!matchComparingClone.includes(c.comparingClones[j])
+						) {
+							matches += 1;
+						}
 						matchBaseClone.push(c.baseClones[i]);
 						matchComparingClone.push(c.comparingClones[j]);
 					}
 				}
 			}
+			diffs = baseCloneSize + comparingCloneSize - matches;
+		} else if (c.baseClones === undefined && c.comparingClones) {
+			diffs = c.comparingClones.length;
+		} else if (c.baseClones && c.comparingClones === undefined) {
+			diffs = c.baseClones.length;
 		}
 		clonesPerFile[Number(id)] = {
 			...clonesPerFile[Number(id)],
 			matchBaseClones: matchBaseClone,
-			matchComparingClones: matchComparingClone
+			matchComparingClones: matchComparingClone,
+			diff: diffs
 		};
 	});
 
 	for (let i = 0; i < Object.keys(clonesPerFile).length; i += 1) {
-		console.log(clonesPerFile[i].baseClones);
-		console.log(clonesPerFile[i].comparingClones);
-		console.log(clonesPerFile[i].matchBaseClones);
-		console.log(clonesPerFile[i].matchComparingClones);
+		console.log(clonesPerFile[i].diff);
 		console.log("-----------");
 	}
+
+	console.log(Object.keys(clonesPerFile).length);
 
 	Object.entries(allFiles).forEach(([y, yf]) => {
 		Object.entries(allFiles).forEach(([x, xf]) => {

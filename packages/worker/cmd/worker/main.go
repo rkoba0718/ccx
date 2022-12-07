@@ -27,6 +27,9 @@ func main() {
 
 	g := configure(cc.OSType())
 
+	g.Prime.ApiAddr = "192.168.144.175:10080"
+	g.Prime.GitAddr = "192.168.144.175:5000"
+
 	r := registry.NewRegistry(g, cc)
 	defer r.Repository.WorkspaceFilesystem.DeleteAll()
 
@@ -98,6 +101,7 @@ func loadPrimeConfigFromSettinsJson(configDirs configdir.ConfigDir) (*value.Prim
 	var config value.PrimeConfig
 
 	dir := configDirs.QueryFolderContainsFile("settings.json")
+	//log.Printf("trace: settings.json not found.%s", dir.Path)
 	if dir != nil {
 		log.Printf("trace: loaded config from settings.json at %s.", dir.Path)
 		data, err := dir.ReadFile("settings.json")
