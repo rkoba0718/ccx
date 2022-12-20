@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
 	Theme,
 	AppBar,
@@ -7,7 +7,8 @@ import {
 	Typography,
 	useTheme,
 	makeStyles,
-	createStyles
+	createStyles,
+	Button
 } from "@material-ui/core";
 
 import AddMenu from "components/molecules/app-bar/AddMenu";
@@ -36,6 +37,7 @@ type Props = {
 const AppMenuBar: React.FunctionComponent<Props> = React.memo(
 	({ menuIcon }) => {
 		const classes = useStyles(useTheme());
+		const history = useHistory();
 
 		return (
 			<AppBar position="fixed">
@@ -48,6 +50,13 @@ const AppMenuBar: React.FunctionComponent<Props> = React.memo(
 					</Typography>
 					<AddMenu />
 					<AccountMenu />
+					<Button
+						color="secondary"
+						variant="contained"
+						onClick={() => history.goBack()}
+					>
+						Back
+					</Button>
 				</Toolbar>
 			</AppBar>
 		);

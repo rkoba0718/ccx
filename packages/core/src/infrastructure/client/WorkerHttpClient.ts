@@ -14,7 +14,7 @@ export class WorkerHttpClient implements WorkerClient {
 			prefixUrl: `http://${this.baseUrl}`,
 			throwHttpErrors: false,
 			responseType: "json",
-			timeout: 5 * 1000 * 60,
+			timeout: 10 * 1000 * 60,
 			retry: 0
 		});
 	}
@@ -60,7 +60,7 @@ export class WorkerHttpClient implements WorkerClient {
 		try {
 			const res = await this.client.post<WorkerConfig>("", {
 				json: { apiAddr, gitAddr },
-				timeout: 5 * 1000,
+				timeout: 10 * 1000,
 				retry: 2
 			});
 

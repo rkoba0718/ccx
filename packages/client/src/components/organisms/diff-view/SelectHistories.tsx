@@ -260,6 +260,7 @@ const SelectHistories: React.FunctionComponent<P> = ({ ids, results }) => {
 		history.push({
 			pathname: `/home/${project}/diff/plot/clones`,
 			search: `?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`
+			// `/home/${project}/diff/plot/clones/?b=${state.baseId}&c=${state.comparingResult}&r=${revision}`
 		});
 	}, [project, state]);
 
@@ -337,6 +338,8 @@ const SelectHistories: React.FunctionComponent<P> = ({ ids, results }) => {
 						variant="contained"
 						disabled={state.comparableResultIds.length === 0}
 						onClick={onClonesClick}
+						// component={Link}
+						// to={`/home/${project}/diff/plot/clones`}
 					>
 						Compare Clones
 					</Button>

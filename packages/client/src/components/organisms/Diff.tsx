@@ -11,10 +11,9 @@ import {
 import MappingResultProvider from "components/providers/MappingResultProvider";
 
 import SelectHistories from "components/organisms/diff-view/SelectHistories";
-import DiffPlotClonePair from "components/organisms/diff-view/DiffPlotClonePair";
-import DiffPlotClones from "components/organisms/diff-view/DiffPlotClones";
-import DiffView from "components/organisms/diff-view/DiffView";
-import HistoryId from "common/all/types/HistoryId";
+import DiffPlotClonePair from "components/organisms/diff-view/clone-pair/DiffPlotClonePair";
+import DiffPlotClones from "components/organisms/diff-view/clone/DiffPlotClones";
+import DiffView from "components/organisms/diff-view/clone-pair/DiffView";
 import HistoryEntityForClient from "common/all/types/HistoryEntityForClient";
 
 type Props = {
@@ -65,14 +64,14 @@ const Diff: React.FunctionComponent<Props> = (props: Props) => {
 			</Route>
 			<Route path="/home/:project/diff/">
 				<MappingResultProvider>
-					<Route exact path="/home/:project/diff/plot/clonepair">
-						<DiffPlotClonePair project={project} />
+					<Route exact path="/home/:project/diff/view">
+						<DiffView project={project} />
 					</Route>
 					<Route exact path="/home/:project/diff/plot/clones">
 						<DiffPlotClones project={project} />
 					</Route>
-					<Route exact path="/home/:project/diff/view">
-						<DiffView project={project} />
+					<Route path="/home/:project/diff/plot/clonepair">
+						<DiffPlotClonePair project={project} />
 					</Route>
 				</MappingResultProvider>
 			</Route>

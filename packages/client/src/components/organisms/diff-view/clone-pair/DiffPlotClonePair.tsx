@@ -1,4 +1,4 @@
-import React, { useRef  } from "react";
+import React, { useRef } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import {
 	Box,

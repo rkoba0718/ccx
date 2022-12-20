@@ -10,14 +10,14 @@ import ClonePairId from "common/all/types/ClonePairId";
 import Similarity from "common/all/types/Similarity";
 
 import SplitPane from "components/atoms/SplitPane";
-import Explorer from "components/organisms/diff-view/Explorer";
+import Explorer from "components/organisms/diff-view/clone-pair/Explorer";
 
 import useMappingResult from "hooks/useMappingResult";
 import useQueryParam from "hooks/useQueryParam";
 import compareFragment from "common/all/utils/compareFragment";
 
 const DiffClonePairView = React.lazy(
-	() => import("components/organisms/diff-view/DiffClonePairView")
+	() => import("components/organisms/diff-view/clone-pair/DiffClonePairView")
 );
 
 type Props = {

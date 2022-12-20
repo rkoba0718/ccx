@@ -1822,6 +1822,7 @@
     "js-yaml" "^4.0.0"
     "ky" "^0.25.1"
     "mdi-material-ui" "^6.21.0"
+    "monaco-editor" "^0.34.1"
     "react" "^17.0.1"
     "react-chartjs-2" "^4.3.1"
     "react-dom" "^17.0.1"
@@ -4930,10 +4931,10 @@
   dependencies:
     "loader-utils" "^2.0.2"
 
-"monaco-editor@*", "monaco-editor@>= 0.31.0":
-  "integrity" "sha512-jS51RLuzMaoJpYbu7F6TPuWpnWTLD4kjRW0+AZzcryvbxrTwhNy1KC9yboyKpgMTahpUbDUsuQULoo0GV1EPqg=="
-  "resolved" "https://registry.npmjs.org/monaco-editor/-/monaco-editor-0.21.2.tgz"
-  "version" "0.21.2"
+"monaco-editor@*", "monaco-editor@^0.34.1", "monaco-editor@>= 0.31.0":
+  "integrity" "sha512-FKc80TyiMaruhJKKPz5SpJPIjL+dflGvz4CpuThaPMc94AyN7SeC9HQ8hrvaxX7EyHdJcUY5i4D0gNyJj1vSZQ=="
+  "resolved" "https://registry.npmjs.org/monaco-editor/-/monaco-editor-0.34.1.tgz"
+  "version" "0.34.1"
 
 "mongodb@^3.6.3", "mongodb@3.7.3":
   "integrity" "sha512-Psm+g3/wHXhjBEktkxXsFMZvd3nemI0r3IPsE0bU+4//PnvNWKkzhZcEsbPcYiWqe8XqXJJEg4Tgtr7Raw67Yw=="

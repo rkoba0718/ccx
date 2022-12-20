@@ -1,6 +1,6 @@
 import React from "react";
-import { useParams, useHistory } from "react-router-dom";
-import { Box, BoxProps, makeStyles, useTheme } from "@material-ui/core";
+import { useParams, useLocation, useHistory } from "react-router-dom";
+import { makeStyles, Typography, useTheme, Box } from "@material-ui/core";
 import { TreeItem, TreeItemProps, TreeView } from "@material-ui/lab";
 import {
 	ChevronDown,
@@ -9,17 +9,53 @@ import {
 	File as FileIcon
 } from "mdi-material-ui";
 
-import File from "common/all/types/File";
-import ClonePair from "common/all/types/ClonePair";
+import SplitPane from "components/atoms/SplitPane";
+import PaneWithTitle from "components/atoms/PaneWithTitle";
 import FilePath from "common/all/types/FilePath";
 import FileId from "common/all/types/FileId";
-import Fragment from "common/all/types/Fragment";
+import File from "common/all/types/File";
+import CloneIdList from "components/organisms/diff-view/clone/CloneIdList";
 
-import useMappingResult from "hooks/useMappingResult";
 import useMatchResult from "hooks/useMatchResult";
 
-type FileNode = {
-	id: string;
+const useStyles = makeStyles((theme) => ({
+	root: {
+		"& > * > *": {
+			width: "100%",
+			height: "100%",
+			"& > *:last-child": {
+				overflowY: "scroll",
+				height: 0
+			}
+		}
+	},
+	title: {
+		display: "inline-block",
+		verticalAlign: "middle",
+		width: "100%"
+	},
+	labelRoot: {
+		flex: "auto",
+		minWidth: 0,
+		display: "flex",
+		flexDirection: "row",
+		paddingRight: theme.spacing(2)
+	},
+	labelText: {
+		fontWeight: "inherit"
+	},
+	cloneIdList: {
+		padding: 0
+	}
+}));
+
+type Files = {
+	id: number;
+	path: FilePath;
+}[];
+
+type Props = {
+	file: Files;
 };
 
 type DirectoryNode = {
@@ -28,8 +64,39 @@ type DirectoryNode = {
 		[key: string]: DirectoryNode;
 	};
 	files: {
-		[key: string]: FileNode;
+		[key: string]: string;
 	};
+};
+
+type FileNodeItemProps = TreeItemProps & {
+	label: string;
+};
+
+const FileNodeItem: React.FunctionComponent<FileNodeItemProps> = ({
+	label,
+	...rest
+}) => {
+	const classes = useStyles(useTheme());
+
+	return (
+		<TreeItem
+			classes={{ label: classes.labelRoot }}
+			endIcon={<FileIcon />}
+			label={
+				<>
+					<Box
+						flex="auto"
+						overflow="hidden"
+						textOverflow="ellipsis"
+						minWidth={0}
+					>
+						{label}
+					</Box>
+				</>
+			}
+			{...rest}
+		/>
+	);
 };
 
 const insertFile = (root: DirectoryNode, paths: string[]): void => {
@@ -51,9 +118,7 @@ const insertFile = (root: DirectoryNode, paths: string[]): void => {
 
 	// insert file node
 	const fileName = paths[paths.length - 1];
-	parent.files[fileName] = {
-		id: [...traces, fileName].join("/")
-	};
+	parent.files[fileName] = [...traces, fileName].join("/");
 };
 
 const isMergeable = (current: DirectoryNode): boolean =>
@@ -101,12 +166,7 @@ const optimizeTree = (root: DirectoryNode): DirectoryNode => {
 	return root;
 };
 
-type files = {
-	id: number;
-	path: FilePath;
-}[];
-
-const buildTree = (files: files): DirectoryNode => {
+const buildTree = (files: Files): DirectoryNode => {
 	const root: DirectoryNode = {
 		id: "/",
 		directories: {},
@@ -119,7 +179,7 @@ const buildTree = (files: files): DirectoryNode => {
 		list[i] = {
 			id: files[i].id as FileId,
 			path: files[i].path
-		}
+		};
 	}
 
 	Object.entries(list).forEach(([, file]) => {
@@ -128,77 +188,8 @@ const buildTree = (files: files): DirectoryNode => {
 	return optimizeTree(root);
 };
 
-type FileNodeItemProps = TreeItemProps & {
-	label: string;
-	nClones: number;
-};
-
-const useStyles = makeStyles((theme) => ({
-	labelRoot: {
-		flex: "auto",
-		minWidth: 0,
-		display: "flex",
-		flexDirection: "row",
-		paddingRight: theme.spacing(2)
-	},
-	labelText: {
-		fontWeight: "inherit"
-	}
-}));
-
-/*
-const labelSx: BoxProps["sx"] = {
-	flex: "auto",
-	overflow: "hidden",
-	textOverflow: "ellipsis",
-	minWidth: 0
-};
-
-const nClonesSx: BoxProps["sx"] = {
-	flex: "none",
-	marginLeft: 2,
-	boxSizing: "border-box"
-};
-*/
-
-const FileNodeItem: React.FunctionComponent<FileNodeItemProps> = ({
-	label,
-	nClones,
-	...rest
-}) => {
-	const classes = useStyles(useTheme());
-
-	return (
-		<TreeItem
-			classes={{ label: classes.labelRoot }}
-			endIcon={<FileIcon />}
-			label={
-				<>
-					<Box
-						flex="auto"
-						overflow="hidden"
-						textOverflow="ellipsis"
-						minWidth={0}
-					>
-						{label}
-					</Box>
-					<Box flex="none" marginLeft={2} boxSizing="border-box">
-						{nClones}
-					</Box>
-				</>
-			}
-			{...rest}
-		/>
-	);
-};
-
-const renderFile = (name: string, node: FileNode) => (
-	<FileNodeItem
-		key={node.id}
-		nodeId={node.id}
-		label={name}
-		nClones={node.nClones}
-	/>
+const renderFile = (name: string, node: string) => (
+	<FileNodeItem key={node} nodeId={node} label={name} />
 );
 
 const renderTree = (
@@ -221,6 +212,18 @@ const renderTree = (
 	</TreeItem>
 );
 
+const useParentStyle = makeStyles((theme) => ({
+	root: {
+		fontSize: "70%",
+		width: "100%"
+	},
+	label: {
+		minWidth: 0,
+		overflow: "hidden",
+		textOverflow: "ellipsis"
+	}
+}));
+
 const cumulativeJoin = (sum: string) => (value: string) => {
 	sum = `${sum}/${value}`;
 	return sum;
@@ -235,44 +238,21 @@ const openSelectedFile = (selectedFile: string) => {
 	return [head, ...tail.map(cumulativeJoin(head))];
 };
 
-type Props = {
-	file: {
-		id: number;
-		path: FilePath;
-	}[];
-};
-
-const useParentStyle = makeStyles((theme) => ({
-	root: {
-		fontSize: "70%",
-		width: "100%"
-	},
-	label: {
-		minWidth: 0,
-		overflow: "hidden",
-		textOverflow: "ellipsis"
-	}
-}));
-
-const FileNameTree: React.FunctionComponent<Props> = ({ file }) => {
-	const classes = useParentStyle(useTheme());
-
+const Explorer: React.FunctionComponent<Props> = ({ file }) => {
+	const classes = useStyles();
+	const style = useParentStyle(useTheme());
+	const { pathname, search } = useLocation();
 	const history = useHistory();
-	const { project, historyId, resultId } = useParams<
-		Record<"project" | "historyId" | "resultId", string>
-	>();
 
-	const { result } = useMappingResult();
-	const files = file;
-	// const [result, dispatch] = useMatchResult();
+	const [result, dispatch] = useMatchResult();
 
 	const root = React.useMemo(() => {
-		return buildTree(files);
+		return buildTree(file);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const [expanded, setExpanded] = React.useState<string[]>(() =>
-		openSelectedFile(files.path));
+		openSelectedFile(result.clones.path)
 	);
 
 	const onNodeToggle = React.useCallback(
@@ -283,17 +263,18 @@ const FileNameTree: React.FunctionComponent<Props> = ({ file }) => {
 
 	const onNodeSelect = React.useCallback(
 		(event: React.ChangeEvent<{}>, nodeId: string) => {
-			history.push(
-				`/home/${project}/history/${historyId}/result/${resultId}/${nodeId}`
-			);
+			history.push({
+				pathname: `${pathname}`,
+				search: `${search}${nodeId}`
+			});
 			dispatch({
-				type: "set-base-file",
+				type: "set-file",
 				payload: {
-					path: nodeId
+					path: `${nodeId}` as FilePath
 				}
 			});
 		},
-		[dispatch]
+		[history, pathname, search, dispatch]
 	);
 
 	const tree = React.useMemo(() => {
@@ -301,30 +282,60 @@ const FileNameTree: React.FunctionComponent<Props> = ({ file }) => {
 			<>
 				{Object.entries(root.directories)
 					.sort(([a], [b]) => a.localeCompare(b))
-					.map(([name, node]) =>
-						renderTree(classes.label, name, node)
-					)}
+					.map(([name, node]) => renderTree(style.label, name, node))}
 				{Object.entries(root.files)
 					.sort(([a], [b]) => a.localeCompare(b))
 					.map(([name, node]) => renderFile(name, node))}
 			</>
 		);
-	}, [classes.label]);
+	}, [root.directories, root.files, style.label]);
 
 	return (
-		<TreeView
+		<SplitPane
 			className={classes.root}
-			defaultParentIcon={<Folder />}
-			defaultCollapseIcon={<ChevronDown />}
-			defaultExpandIcon={<ChevronRight />}
-			expanded={expanded}
-			selected={result.base.path}
-			onNodeToggle={onNodeToggle}
-			onNodeSelect={onNodeSelect}
+			allowResize
+			split="horizontal"
+			defaultSize="65%"
 		>
-			{tree}
-		</TreeView>
+			<PaneWithTitle
+				title={
+					<Typography
+						className={classes.title}
+						noWrap
+						variant="caption"
+					>
+						Files
+					</Typography>
+				}
+			>
+				<TreeView
+					className={style.root}
+					defaultParentIcon={<Folder />}
+					defaultCollapseIcon={<ChevronDown />}
+					defaultExpandIcon={<ChevronRight />}
+					expanded={expanded}
+					selected={result.clones.path}
+					onNodeToggle={onNodeToggle}
+					onNodeSelect={onNodeSelect}
+				>
+					{tree}
+				</TreeView>
+			</PaneWithTitle>
+			<PaneWithTitle
+				title={
+					<Typography
+						className={classes.title}
+						noWrap
+						variant="caption"
+					>
+						Clones
+					</Typography>
+				}
+			>
+				<CloneIdList className={classes.cloneIdList} />
+			</PaneWithTitle>
+		</SplitPane>
 	);
 };
 
-export default FileNameTree;
+export default Explorer;

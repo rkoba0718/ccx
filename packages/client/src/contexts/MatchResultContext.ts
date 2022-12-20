@@ -1,6 +1,6 @@
 import React from "react";
 
-import { State, Action } from "reducers/resultBiasReducer";
+import { State, Action } from "reducers/matchReducer";
 
 export { State, Action };
 

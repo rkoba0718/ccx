@@ -6,7 +6,7 @@ import ClonePairId from "common/all/types/ClonePairId";
 
 import SplitPane from "components/atoms/SplitPane";
 import PaneWithTitle from "components/atoms/PaneWithTitle";
-import DiffCloneView from "components/organisms/diff-view/DiffCloneView";
+import DiffCloneView from "components/organisms/diff-view/clone-pair/DiffCloneView";
 import useMappingResult from "hooks/useMappingResult";
 
 const useStyles = makeStyles({

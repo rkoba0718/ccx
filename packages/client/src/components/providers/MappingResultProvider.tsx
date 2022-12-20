@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 import { MappingResult } from "common/all/types/EDetectionResult";
@@ -33,13 +33,11 @@ const MappingResultProvider: React.FunctionComponent<Props> = ({
 	const { data } = useSWR(
 		() => {
 			if (base && comparing && revision) {
-
 				return `projects/${project}/compare?base=${base}&comparing=${comparing}`;
 			}
 			return null;
 		},
 		(url: any) => {
-
 			return api
 				.get(url, {
 					timeout: false

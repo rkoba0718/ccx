@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
-	"strings"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/go-git/go-git/v5"
 
@@ -119,7 +118,6 @@ func (p Plugin) Tar(qp plugin.Path) (plugin.TarReader, error) {
 func (p Plugin) clone() {
 	u := fmt.Sprintf("git://%s/plugins/.git", p.gitAddr)
 	//u := fmt.Sprintf("https://github.com/kk-mats/ccx.git")
-	
 	//_, err := git.PlainClone(p.pluginsRoot, false, &git.CloneOptions{URL: u})
 	_, err := git.PlainClone(p.pluginsRoot, false, &git.CloneOptions{URL: u})
 	if err != nil {
