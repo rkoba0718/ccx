@@ -23,20 +23,15 @@ const CloneIdList: React.FunctionComponent<Props> = ({ className }) => {
 		matchBaseClones = [...result.clones.matchBaseClones];
 		matchComparingClones = [...result.clones.matchComparingClones];
 	}
-	if (result.clones.baseClones) {
-		const unmatch = result.clones.baseClones.filter(
-			(b) => !matchBaseClones.includes(b)
-		);
-		baseClones = unmatch;
+	if (result.clones.unmatchedBaseClones) {
+		baseClones = [...result.clones.unmatchedBaseClones];
 	}
-	if (result.clones.comparingClones) {
-		const unmatch = result.clones.comparingClones.filter(
-			(c) => !matchComparingClones.includes(c)
-		);
-		comparingClones = unmatch;
+	if (result.clones.unmatchedComparingClones) {
+		comparingClones = [...result.clones.unmatchedComparingClones];
 	}
 	return (
 		<List dense className={className}>
+			Unmatched Base Clones
 			{baseClones.map((b, id) => {
 				const intId = id.toFixed();
 				const idHash = `#b${intId}`;
@@ -54,6 +49,7 @@ const CloneIdList: React.FunctionComponent<Props> = ({ className }) => {
 					</ListItemHashLink>
 				);
 			})}
+			Unmatched Comparing Clones
 			{comparingClones.map((c, id) => {
 				const intId = id.toFixed();
 				const idHash = `#c${intId}`;
@@ -71,6 +67,7 @@ const CloneIdList: React.FunctionComponent<Props> = ({ className }) => {
 					</ListItemHashLink>
 				);
 			})}
+			Matched Clones
 			{matchBaseClones.map((m, id) => {
 				const intId = id.toFixed();
 				const idHash = `#m${intId}`;

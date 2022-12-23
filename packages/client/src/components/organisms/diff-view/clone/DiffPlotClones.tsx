@@ -138,7 +138,8 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 			xAxis: {
 				title: {
 					display: true,
-					text: "Files"
+					text: "Files",
+					align: "start"
 				},
 				ticks: {
 					display: false
@@ -193,7 +194,7 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 						10 *
 						Number(Object.keys(result.clonesPerFile).length)
 					}
-					height={windowDimentions.height * 0.23}
+					height={windowDimentions.height * 0.25}
 				/>
 			</PaneWithTitle>
 			<PaneWithTitle

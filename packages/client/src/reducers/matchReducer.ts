@@ -13,6 +13,8 @@ export type State = {
 		comparingClones?: Fragment[];
 		matchBaseClones?: Fragment[];
 		matchComparingClones?: Fragment[];
+		unmatchedBaseClones?: Fragment[];
+		unmatchedComparingClones?: Fragment[];
 		diff: number;
 	};
 };
@@ -32,6 +34,8 @@ export const defaultState: (args: {
 		comparingClones?: Fragment[];
 		matchBaseClones?: Fragment[];
 		matchComparingClones?: Fragment[];
+		unmatchedBaseClones?: Fragment[];
+		unmatchedComparingClones?: Fragment[];
 		diff: number;
 	};
 }) => State = ({ result, clones }) => ({ result, clones });

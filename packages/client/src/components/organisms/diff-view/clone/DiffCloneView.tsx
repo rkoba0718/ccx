@@ -247,8 +247,8 @@ const reducer: React.Reducer<State, Action> = (state, action): State => {
 						decoratingFragments[`m${id}`] = [mb];
 					});
 				}
-				if (result.clones.baseClones) {
-					result.clones.baseClones.forEach((b, id) => {
+				if (result.clones.unmatchedBaseClones) {
+					result.clones.unmatchedBaseClones.forEach((b, id) => {
 						decoratingFragments[`b${id}`] = [b];
 					});
 				}
@@ -258,8 +258,8 @@ const reducer: React.Reducer<State, Action> = (state, action): State => {
 						decoratingFragments[`m${id}`] = [mb];
 					});
 				}
-				if (result.clones.comparingClones) {
-					result.clones.comparingClones.forEach((b, id) => {
+				if (result.clones.unmatchedComparingClones) {
+					result.clones.unmatchedComparingClones.forEach((b, id) => {
 						decoratingFragments[`c${id}`] = [b];
 					});
 				}
