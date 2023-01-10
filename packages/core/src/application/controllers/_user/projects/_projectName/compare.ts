@@ -20,6 +20,7 @@ import {
 	InternalHistoryEntityId
 } from "common/server-only/value-objects/EntityId";
 import ProjectRepository from "infrastructure/repositories/ProjectRepository";
+import compareFragment from "common/all/utils/compareFragment";
 import { clone } from "io-ts-types";
 import { badRequest } from "@hapi/boom";
 import { match } from "fp-ts/lib/EitherT";
@@ -229,6 +230,8 @@ const map = (
 			}
 			diffs = c.baseClones.length;
 		}
+		unmatchedBaseClone.sort((p1, p2) => compareFragment(p1, p2));
+		unmatchedComparingClone.sort((p1, p2) => compareFragment(p1, p2));
 		clonesPerFile[Number(id)] = {
 			...clonesPerFile[Number(id)],
 			matchBaseClones: matchBaseClone,
