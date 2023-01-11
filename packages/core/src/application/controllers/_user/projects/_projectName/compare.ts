@@ -310,6 +310,9 @@ const map = (
 		});
 	});
 
+	console.log("bar graph size:");
+	console.log(Object.keys(clonesPerFile).length);
+
 	return {
 		base,
 		comparing,
