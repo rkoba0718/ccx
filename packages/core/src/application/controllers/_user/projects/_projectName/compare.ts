@@ -23,7 +23,6 @@ import ProjectRepository from "infrastructure/repositories/ProjectRepository";
 import compareFragment from "common/all/utils/compareFragment";
 import { clone } from "io-ts-types";
 import { badRequest } from "@hapi/boom";
-import { match } from "fp-ts/lib/EitherT";
 
 const router = express.Router({ mergeParams: true });
 
@@ -58,7 +57,7 @@ const map = (
 	console.log(JSON.stringify(Object));
 	Object.entries(base.files).forEach(([id, f]) => {
 		allFiles[fileCtr] = { path: f, base: Number(id) as FileId };
-		clonesPerFile[fileCtr] = { path: f, diff: 0 };
+		clonesPerFile[fileCtr] = { path: f, sum: 0, matchRate: 0 };
 		allGrids[fileCtr] = {};
 		fileCtr += 1;
 	});
@@ -76,7 +75,7 @@ const map = (
 			};
 		} else {
 			allFiles[fileCtr] = { path: f, comparing: Number(id) as FileId };
-			clonesPerFile[fileCtr] = { path: f, diff: 0 };
+			clonesPerFile[fileCtr] = { path: f, sum: 0, matchRate: 0 };
 			allGrids[fileCtr] = {};
 			comparingToAllF[Number(id)] = fileCtr as FileId;
 			fileCtr += 1;
@@ -182,7 +181,8 @@ const map = (
 		const matchComparingClone: Fragment[] = [];
 		const unmatchedBaseClone: Fragment[] = [];
 		const unmatchedComparingClone: Fragment[] = [];
-		let diffs = 0;
+		let sums = 0;
+		let match = 0;
 		if (c.baseClones && c.comparingClones) {
 			const baseCloneSize = c.baseClones.length;
 			const comparingCloneSize = c.comparingClones.length;
@@ -216,19 +216,27 @@ const map = (
 					unmatchedComparingClone.push(c.comparingClones[i]);
 				}
 			}
-			diffs = baseCloneSize + comparingCloneSize - matches;
+			sums =
+				unmatchedBaseClone.length +
+				unmatchedComparingClone.length +
+				matchBaseClone.length;
+			if (baseCloneSize > comparingCloneSize) {
+				match = (matchBaseClone.length / baseCloneSize) * 100;
+			} else {
+				match = (matchComparingClone.length / comparingCloneSize) * 100;
+			}
 		} else if (c.baseClones === undefined && c.comparingClones) {
 			const comparingCloneSize = c.comparingClones.length;
 			for (let i = 0; i < comparingCloneSize; i += 1) {
 				unmatchedBaseClone.push(c.comparingClones[i]);
 			}
-			diffs = c.comparingClones.length;
+			sums = c.comparingClones.length;
 		} else if (c.baseClones && c.comparingClones === undefined) {
 			const baseCloneSize = c.baseClones.length;
 			for (let i = 0; i < baseCloneSize; i += 1) {
 				unmatchedBaseClone.push(c.baseClones[i]);
 			}
-			diffs = c.baseClones.length;
+			sums = c.baseClones.length;
 		}
 		unmatchedBaseClone.sort((p1, p2) => compareFragment(p1, p2));
 		unmatchedComparingClone.sort((p1, p2) => compareFragment(p1, p2));
@@ -238,7 +246,8 @@ const map = (
 			matchComparingClones: matchComparingClone,
 			unmatchedBaseClones: unmatchedBaseClone,
 			unmatchedComparingClones: unmatchedComparingClone,
-			diff: diffs
+			sum: sums,
+			matchRate: match
 		};
 	});
 
@@ -311,7 +320,7 @@ const map = (
 	});
 
 	console.log("bar graph size:");
-	console.log(Object.keys(clonesPerFile).length);
+	console.log(clonesPerFile);
 
 	return {
 		base,

@@ -46,7 +46,8 @@ export type MappingResult = {
 			matchComparingClones?: Fragment[];
 			unmatchedBaseClones?: Fragment[];
 			unmatchedComparingClones?: Fragment[];
-			diff: number;
+			sum: number;
+			matchRate: number;
 		}
 	>;
 };
