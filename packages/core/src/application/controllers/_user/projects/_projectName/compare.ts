@@ -82,8 +82,139 @@ const map = (
 		}
 	});
 
+	let baseCloneSet: Fragment[][] = [];
+	Object.entries(base.clonePairs).forEach(([, bcp]) => {
+		if (baseCloneSet.length == 0) {
+			const clones: Fragment[] = [];
+			clones.push(bcp.f1 as Fragment);
+			clones.push(bcp.f2 as Fragment);
+			baseCloneSet.push(clones);
+		} else {
+			const size = baseCloneSet.length;
+			let setFlag = false;
+			for (let i = 0; i < size; i += 1) {
+				for (let j = 0; j < baseCloneSet[i].length; j += 1) {
+					if (JSON.stringify(baseCloneSet[i][j]) === JSON.stringify(bcp.f1)) {
+						let flag = false;
+						for (let k = j; k < baseCloneSet[i].length; k += 1) {
+							if (JSON.stringify(baseCloneSet[i][k]) === JSON.stringify(bcp.f2)) {
+								flag = true;
+								break;
+							}
+						}
+						if (!flag) {
+							baseCloneSet[i].push(bcp.f2 as Fragment);
+						}
+						setFlag = true;
+						break;
+					} else if (JSON.stringify(baseCloneSet[i][j]) === JSON.stringify(bcp.f2)){
+						let flag = false;
+						for (let k = j; k < baseCloneSet[i].length; k += 1) {
+							if (JSON.stringify(baseCloneSet[i][k]) === JSON.stringify(bcp.f1)) {
+								flag = true;
+								break;
+							}
+						}
+						if (!flag) {
+							baseCloneSet[i].push(bcp.f1 as Fragment);
+						}
+						setFlag = true;
+						break;
+					}
+				}
+				if (setFlag) {
+					break;
+				}
+			}
+			if (!setFlag) {
+				const clones: Fragment[] = [];
+				clones.push(bcp.f1 as Fragment);
+				clones.push(bcp.f2 as Fragment);
+				baseCloneSet.push(clones);
+			}
+		}
+	});
+
+	const baseCloneSetSize = baseCloneSet.length;
+	for (let i = baseCloneSetSize - 1; i > -1; i -= 1) {
+		const fragment = baseCloneSet[i][0];
+		for (let j = i - 1; j > -1; j -= 1) {
+			for (let k = 0; k < baseCloneSet[j].length; k += 1)
+				if (JSON.stringify(baseCloneSet[j][k]) === JSON.stringify(fragment)) {
+					baseCloneSet.splice(i, 1);
+					break;
+				}
+		}
+	}
+
+	let comparingCloneSet: Fragment[][] = [];
+	Object.entries(comparing.clonePairs).forEach(([, ccp]) => {
+		if (comparingCloneSet.length == 0) {
+			const clones: Fragment[] = [];
+			clones.push(ccp.f1 as Fragment);
+			clones.push(ccp.f2 as Fragment);
+			comparingCloneSet.push(clones);
+		} else {
+			const size = comparingCloneSet.length;
+			let setFlag = false;
+			for (let i = 0; i < size; i += 1) {
+				for (let j = 0; j < comparingCloneSet[i].length; j += 1) {
+					if (JSON.stringify(comparingCloneSet[i][j]) === JSON.stringify(ccp.f1)) {
+						let flag = false;
+						for (let k = j; k < comparingCloneSet[i].length; k += 1) {
+							if (JSON.stringify(comparingCloneSet[i][k]) === JSON.stringify(ccp.f2)) {
+								flag = true;
+								break;
+							}
+						}
+						if (!flag) {
+							comparingCloneSet[i].push(ccp.f2 as Fragment);
+						}
+						setFlag = true;
+						break;
+					} else if (JSON.stringify(comparingCloneSet[i][j]) === JSON.stringify(ccp.f2)){
+						let flag = false;
+						for (let k = j; k < comparingCloneSet[i].length; k += 1) {
+							if (JSON.stringify(comparingCloneSet[i][k]) === JSON.stringify(ccp.f1)) {
+								flag = true;
+								break;
+							}
+						}
+						if (!flag) {
+							comparingCloneSet[i].push(ccp.f1 as Fragment);
+						}
+						setFlag = true;
+						break;
+					}
+				}
+				if (setFlag) {
+					break;
+				}
+			}
+			if (!setFlag) {
+				const clones: Fragment[] = [];
+				clones.push(ccp.f1 as Fragment);
+				clones.push(ccp.f2 as Fragment);
+				comparingCloneSet.push(clones);
+			}
+		}
+	});
+
+	const comparingCloneSetSize = comparingCloneSet.length;
+	for (let i = comparingCloneSetSize - 1; i > -1; i -= 1) {
+		const fragment = comparingCloneSet[i][0];
+		for (let j = i - 1; j > -1; j -= 1) {
+			for (let k = 0; k < comparingCloneSet[j].length; k += 1)
+				if (JSON.stringify(comparingCloneSet[j][k]) === JSON.stringify(fragment)) {
+					comparingCloneSet.splice(i, 1);
+					break;
+				}
+		}
+	}
+
 	for (let i = 0; i < baseFileCtr; i += 1) {
 		const baseClone: Fragment[] = [];
+		const baseCloneSets: Fragment[][] = [];
 		Object.entries(base.clonePairs).forEach(([, bcp]) => {
 			const baseCloneSize = baseClone.length;
 			if (bcp.f1.file === i) {
@@ -121,15 +252,31 @@ const map = (
 				}
 			}
 		});
+		const size = baseCloneSet.length;
+		for (let j = 0; j < size; j += 1) {
+			if (baseCloneSet[j][0].file > i) {
+				break;
+			}
+			for (let k = 0; k < baseCloneSet[j].length; k += 1) {
+				if (baseCloneSet[j][k].file === i) {
+					baseCloneSets.push(baseCloneSet[j]);
+					break;
+				} else if (baseCloneSet[j][k].file > i) {
+					break;
+				}
+			}
+		}
 		clonesPerFile[i] = {
 			...clonesPerFile[i],
-			baseClones: baseClone
+			baseClones: baseClone,
+			baseCloneSet: baseCloneSets
 		};
 	}
 
 	const allFilesSize = Object.keys(allFiles).length;
 	for (let i = 0; i < allFilesSize; i += 1) {
 		const comparingClone: Fragment[] = [];
+		const comparingCloneSets: Fragment[][] = [];
 		const cFileId = allFiles[i].comparing;
 		if (cFileId != null) {
 			Object.entries(comparing.clonePairs).forEach(([, ccp]) => {
@@ -169,9 +316,24 @@ const map = (
 					}
 				}
 			});
+			const size = comparingCloneSet.length;
+			for (let j = 0; j < size; j += 1) {
+				if (comparingCloneSet[j][0].file > cFileId) {
+					break;
+				}
+				for (let k = 0; k < comparingCloneSet[j].length; k += 1) {
+					if (comparingCloneSet[j][k].file === cFileId) {
+						comparingCloneSets.push(comparingCloneSet[j]);
+						break;
+					} else if (comparingCloneSet[j][k].file > cFileId) {
+						break;
+					}
+				}
+			}
 			clonesPerFile[i] = {
 				...clonesPerFile[i],
-				comparingClones: comparingClone
+				comparingClones: comparingClone,
+				comparingCloneSet: comparingCloneSets
 			};
 		}
 	}
@@ -319,8 +481,8 @@ const map = (
 		});
 	});
 
-	console.log("bar graph size:");
-	console.log(clonesPerFile);
+	// console.log("bar graph size:");
+	// console.log(clonesPerFile);
 
 	return {
 		base,
