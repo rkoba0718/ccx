@@ -14,8 +14,7 @@ import PaneWithTitle from "components/atoms/PaneWithTitle";
 import FilePath from "common/all/types/FilePath";
 import FileId from "common/all/types/FileId";
 import File from "common/all/types/File";
-import CloneIdList from "components/organisms/diff-view/clone/CloneIdList";
-
+import CloneSetTree from "components/organisms/diff-view/clone/CloneSetTree";
 import useMatchResult from "hooks/useMatchResult";
 
 const useStyles = makeStyles((theme) => ({
@@ -43,10 +42,10 @@ const useStyles = makeStyles((theme) => ({
 	},
 	labelText: {
 		fontWeight: "inherit"
-	},
-	cloneIdList: {
-		padding: 0
 	}
+	// cloneIdList: {
+	// 	padding: 0
+	// }
 }));
 
 type Files = {
@@ -229,7 +228,7 @@ const cumulativeJoin = (sum: string) => (value: string) => {
 	return sum;
 };
 
-const openSelectedFile = (selectedFile: string) => {
+export const openSelectedFile = (selectedFile: string) => {
 	if (!selectedFile) {
 		return [];
 	}
@@ -295,7 +294,7 @@ const Explorer: React.FunctionComponent<Props> = ({ file }) => {
 			className={classes.root}
 			allowResize
 			split="horizontal"
-			defaultSize="65%"
+			defaultSize="55%"
 		>
 			<PaneWithTitle
 				title={
@@ -328,11 +327,11 @@ const Explorer: React.FunctionComponent<Props> = ({ file }) => {
 						noWrap
 						variant="caption"
 					>
-						Clones
+						Clone Sets
 					</Typography>
 				}
 			>
-				<CloneIdList className={classes.cloneIdList} />
+				<CloneSetTree path={result.clones.path} />
 			</PaneWithTitle>
 		</SplitPane>
 	);

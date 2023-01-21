@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, MouseEvent } from "react";
+import { useLocation, useHistory } from "react-router-dom";
 import { Typography, makeStyles } from "@material-ui/core";
 import {
 	Chart as ChartJS,
@@ -13,9 +14,10 @@ import {
 	LineController,
 	BarController
 } from "chart.js";
-import { Chart } from "react-chartjs-2";
+import { Chart, getElementAtEvent } from "react-chartjs-2";
 
 import SplitPane from "components/atoms/SplitPane";
+import FilePath from "common/all/types/FilePath";
 import PaneWithTitle from "components/atoms/PaneWithTitle";
 import DiffView from "components/organisms/diff-view/clone/DiffView";
 import useMappingResult from "hooks/useMappingResult";
@@ -49,15 +51,62 @@ const useStyles = makeStyles({
 	}
 });
 
+type State = {
+	path: FilePath;
+	match: number;
+	unmatchedBase: number;
+	unmatchedComparing: number;
+	rate: number;
+};
+
+type SetActionPayload = {
+	path: FilePath;
+	match: number;
+	unmatchedBase: number;
+	unmatchedComparing: number;
+	rate: number;
+};
+
+type Action = {
+	type: "set";
+	payload: SetActionPayload;
+};
+
+const setAction = ({
+	path,
+	match,
+	unmatchedBase,
+	unmatchedComparing,
+	rate
+}: SetActionPayload): State => ({
+	path,
+	match,
+	unmatchedBase,
+	unmatchedComparing,
+	rate
+});
+
+const reducer = (state: State, action: Action): State => {
+	const next = { ...state };
+	// eslint-disable-next-line default-case
+	switch (action.type) {
+		case "set": {
+			return setAction(action.payload);
+		}
+	}
+
+	return next;
+};
+
 type Props = {
 	project: string;
 };
 const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 	const classes = useStyles();
-
 	const { base, comparing, revision, result } = useMappingResult();
-
-	const chartRef = useRef(null);
+	const chartRef = useRef<ChartJS>(null);
+	const { pathname, search } = useLocation();
+	const history = useHistory();
 
 	let sums = 0;
 
@@ -186,6 +235,41 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 		}
 	};
 
+	// const onLabelSelect = React.useCallback(
+	// 	(event: React.ChangeEvent<{}>, nodeId: string) => {
+	// 		// history.push({
+	// 		// 	pathname: `${pathname}`,
+	// 		// 	search: `${search}${nodeId}`
+	// 		// });
+	// 		dispatch({
+	// 			type: "set-file",
+	// 			payload: {
+	// 				path: `${nodeId}` as FilePath
+	// 			}
+	// 		});
+	// 	},
+	// 	[dispatch]
+	// );
+
+	const onClick = (event: MouseEvent<HTMLCanvasElement>) => {
+		const { current: chart } = chartRef;
+
+		if (!chart) {
+			return;
+		}
+
+		const dataset = getElementAtEvent(chart, event);
+		const { datasetIndex, index } = dataset[0];
+
+		// history.push({
+		// 	pathname: `${pathname}`,
+		// 	search: `${search}${data.labels[index]}`
+		// });
+
+		// onLabelSelect(event, data.labels[index]);
+		// openSelectedFile(data.labels[index]);
+	};
+
 	const getWindowDimensions = () => {
 		const { innerWidth: width, innerHeight: height } = window;
 		return {
@@ -220,7 +304,7 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 						noWrap
 						variant="caption"
 					>
-						Bar Graph
+						Graph
 					</Typography>
 				}
 			>
@@ -229,6 +313,7 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 					type="bar"
 					data={data}
 					options={options}
+					onClick={onClick}
 					width={
 						2 *
 						10 *

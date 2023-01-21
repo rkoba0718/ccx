@@ -143,6 +143,26 @@ const highlightSelected = (
 	console.log(`${previousSelected} to ${selected}`);
 
 	if (
+		previousSelected !== null &&
+		previousSelected !== selected &&
+		previousSelected in next
+	) {
+		next[previousSelected] = updateDecoration(
+			editor,
+			previousSelected,
+			next,
+			decoratingFragments,
+			`${classes.selected} ${
+				previousSelected.startsWith("b")
+					? classes.baseUnmatched
+					: previousSelected.startsWith("c")
+					? classes.comparingUnmatched
+					: classes.matched
+			}`
+		);
+	}
+
+	if (
 		selected !== null &&
 		selected !== previousSelected &&
 		selected in next
@@ -169,32 +189,11 @@ const highlightSelected = (
 		);
 	}
 
-	if (
-		previousSelected !== null &&
-		previousSelected !== selected &&
-		previousSelected in next
-	) {
-		next[previousSelected] = updateDecoration(
-			editor,
-			previousSelected,
-			next,
-			decoratingFragments,
-			`${classes.selected} ${
-				previousSelected.startsWith("b")
-					? classes.baseUnmatched
-					: previousSelected.startsWith("c")
-					? classes.comparingUnmatched
-					: classes.matched
-			}`
-		);
-	}
-
 	return [next, selected];
 };
 
 type State = {
 	fileDependent: {
-		orientation: "left" | "right";
 		decoratingFragments: DecoratingFragments;
 	};
 	selectedDependent: {
@@ -211,7 +210,6 @@ type Action =
 				text: string;
 				result: MatchResultState;
 				classes: Record<string, string>;
-				orientation: "left" | "right";
 			};
 	  }
 	| {
@@ -227,13 +225,7 @@ type Action =
 const reducer: React.Reducer<State, Action> = (state, action): State => {
 	switch (action.type) {
 		case "set-file": {
-			const {
-				editor,
-				text,
-				result,
-				classes,
-				orientation
-			} = action.payload;
+			const { editor, text, result, classes } = action.payload;
 			const baseUri = Monaco.Uri.parse(result.clones.path);
 			if (editor.getModel()?.uri.toString() === baseUri.toString()) {
 				return state;
@@ -241,28 +233,35 @@ const reducer: React.Reducer<State, Action> = (state, action): State => {
 
 			const decoratingFragments: DecoratingFragments = {};
 
-			if (orientation === "left") {
-				if (result.clones.matchBaseClones) {
-					result.clones.matchBaseClones.forEach((mb, id) => {
-						decoratingFragments[`m${id}`] = [mb];
+			if (result.clones.unmatchedBaseCloneSets) {
+				result.clones.unmatchedBaseCloneSets.forEach((b, id) => {
+					const fileId = b[0].file;
+					b.forEach((bb, num) => {
+						if (bb.file === fileId) {
+							decoratingFragments[`b${id}-${num}`] = [bb];
+						}
 					});
-				}
-				if (result.clones.unmatchedBaseClones) {
-					result.clones.unmatchedBaseClones.forEach((b, id) => {
-						decoratingFragments[`b${id}`] = [b];
+				});
+			}
+			if (result.clones.unmatchedComparingCloneSets) {
+				result.clones.unmatchedComparingCloneSets.forEach((c, id) => {
+					const fileId = c[0].file;
+					c.forEach((cc, num) => {
+						if (cc.file === fileId) {
+							decoratingFragments[`c${id}-${num}`] = [cc];
+						}
 					});
-				}
-			} else if (orientation === "right") {
-				if (result.clones.matchComparingClones) {
-					result.clones.matchComparingClones.forEach((mb, id) => {
-						decoratingFragments[`m${id}`] = [mb];
-					});
-				}
-				if (result.clones.unmatchedComparingClones) {
-					result.clones.unmatchedComparingClones.forEach((b, id) => {
-						decoratingFragments[`c${id}`] = [b];
-					});
-				}
+				});
+			}
+			if (result.clones.matchBases) {
+				result.clones.matchBases.forEach((mb, id) => {
+					decoratingFragments[`mb${id}`] = [mb];
+				});
+			}
+			if (result.clones.matchComparings) {
+				result.clones.matchComparings.forEach((mc, id) => {
+					decoratingFragments[`mc${id}`] = [mc];
+				});
 			}
 
 			const model = Monaco.editor.getModel(baseUri);
@@ -282,7 +281,6 @@ const reducer: React.Reducer<State, Action> = (state, action): State => {
 
 			return {
 				fileDependent: {
-					orientation,
 					decoratingFragments
 				},
 				selectedDependent: {
@@ -322,13 +320,11 @@ const reducer: React.Reducer<State, Action> = (state, action): State => {
 type Props = {
 	revision: string;
 	selected: string | null;
-	orientation: "left" | "right";
 };
 
 const DiffCloneView: React.FunctionComponent<Props> = ({
 	revision,
-	selected,
-	orientation
+	selected
 }) => {
 	const classes = useStyles();
 	const { project } = useParams<{
@@ -349,7 +345,6 @@ const DiffCloneView: React.FunctionComponent<Props> = ({
 	const [instance, setInstance] = React.useState<Instance | null>(null);
 	const [state, dispatch] = React.useReducer(reducer, {
 		fileDependent: {
-			orientation,
 			decoratingFragments: {}
 		},
 		selectedDependent: {
@@ -377,8 +372,7 @@ const DiffCloneView: React.FunctionComponent<Props> = ({
 					editor: instance.editor,
 					result,
 					text: data.text,
-					classes,
-					orientation
+					classes
 				}
 			});
 
@@ -394,7 +388,7 @@ const DiffCloneView: React.FunctionComponent<Props> = ({
 				});
 			}
 		}
-	}, [instance, result, classes, data.text, orientation, selected]);
+	}, [instance, result, classes, data.text, selected]);
 
 	// on selected clone changed
 	React.useEffect(() => {

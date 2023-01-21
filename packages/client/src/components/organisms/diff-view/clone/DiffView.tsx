@@ -26,6 +26,7 @@ const useStyles = makeStyles({
 
 const useMatchClones = () => {
 	const { result } = useMappingResult();
+	const allF = result.allFiles;
 	return React.useMemo(() => {
 		const file: {
 			id: number;
@@ -40,9 +41,10 @@ const useMatchClones = () => {
 		});
 
 		return {
-			file
+			file,
+			allF
 		};
-	}, [result]);
+	}, [result, allF]);
 };
 
 const DiffView: React.FunctionComponent<Props> = ({ revision }) => {
@@ -55,11 +57,11 @@ const DiffView: React.FunctionComponent<Props> = ({ revision }) => {
 				className={classes.root}
 				allowResize
 				split="vertical"
-				minSize={250}
+				defaultSize="16%"
 			>
 				<Explorer file={m.file} />
 				<React.Suspense fallback={<CircularProgress />}>
-					<CloneView revision={revision} />
+					<CloneView revision={revision} allFiles={m.allF} />
 				</React.Suspense>
 			</SplitPane>
 		</DiffResultProvider>
