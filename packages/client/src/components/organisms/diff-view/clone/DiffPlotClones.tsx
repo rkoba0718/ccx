@@ -221,6 +221,10 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 				},
 				max: Math.ceil(ymax + 30)
 			},
+			y1: {
+				max: 100,
+				min: 0
+			},
 			xAxis: {
 				stacked: true,
 				title: {
@@ -251,24 +255,24 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 	// 	[dispatch]
 	// );
 
-	const onClick = (event: MouseEvent<HTMLCanvasElement>) => {
-		const { current: chart } = chartRef;
+	// const onClick = (event: MouseEvent<HTMLCanvasElement>) => {
+	// 	const { current: chart } = chartRef;
 
-		if (!chart) {
-			return;
-		}
+	// 	if (!chart) {
+	// 		return;
+	// 	}
 
-		const dataset = getElementAtEvent(chart, event);
-		const { datasetIndex, index } = dataset[0];
+	// 	const dataset = getElementAtEvent(chart, event);
+	// 	const { datasetIndex, index } = dataset[0];
 
-		// history.push({
-		// 	pathname: `${pathname}`,
-		// 	search: `${search}${data.labels[index]}`
-		// });
+	// 	history.push({
+	// 		pathname: `${pathname}`,
+	// 		search: `${search}${data.labels[index]}`
+	// 	});
 
-		// onLabelSelect(event, data.labels[index]);
-		// openSelectedFile(data.labels[index]);
-	};
+	// 	onLabelSelect(event, data.datasets[index].data);
+	// 	openSelectedFile(data.labels[index]);
+	// };
 
 	const getWindowDimensions = () => {
 		const { innerWidth: width, innerHeight: height } = window;
@@ -313,7 +317,7 @@ const DiffPlotClones: React.FunctionComponent<Props> = ({ project }) => {
 					type="bar"
 					data={data}
 					options={options}
-					onClick={onClick}
+					// onClick={onClick}
 					width={
 						2 *
 						10 *

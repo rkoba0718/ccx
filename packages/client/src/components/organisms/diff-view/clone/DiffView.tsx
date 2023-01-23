@@ -57,7 +57,7 @@ const DiffView: React.FunctionComponent<Props> = ({ revision }) => {
 				className={classes.root}
 				allowResize
 				split="vertical"
-				defaultSize="16%"
+				minSize={300}
 			>
 				<Explorer file={m.file} />
 				<React.Suspense fallback={<CircularProgress />}>
