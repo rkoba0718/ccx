@@ -686,6 +686,9 @@ const map = (
 		});
 	});
 
+	console.log("bar graph size:");
+	console.log(clonesPerFile);
+
 	return {
 		base,
 		comparing,
