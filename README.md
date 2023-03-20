@@ -58,7 +58,7 @@ git repository should not include non-English character path names.
 
 Currently, to prevent the system from being overloaded, each  clone detection is forced to terminate if it takes more than 5 minutes.
 
-##追加機能(2023/02/14)
+## 追加機能(2023/02/14)
 
 異なるコードクローン検出ツールの検出結果を比較し、表示する新たな機能を追加しました。機能の詳しい説明、使用方法などに関しては以下のドキュメントを読んでください。
 
