@@ -63,3 +63,7 @@ Currently, to prevent the system from being overloaded, each  clone detection is
 異なるコードクローン検出ツールの検出結果を比較し、表示する新たな機能を追加しました。機能の詳しい説明、使用方法などに関しては以下のドキュメントを読んでください。
 
 [新規比較機能の使い方](/docs/比較機能ドキュメント.pdf)
+
+## Additional Functions(2023/02/14)
+
+A new function has been added to compare and display the detection results of different code clone detection tools. Please read the following document for a detailed description of the feature and how to use it.
