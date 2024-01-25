@@ -64,6 +64,10 @@ Currently, to prevent the system from being overloaded, each  clone detection is
 
 [新規比較機能の使い方](/docs/CCXDocument_ja.pdf)
 
+本機能を実装した研究成果は第214回ソフトウェア工学発表会で発表されました。
+
+- [小林　亮太, 松島　誠, 肥後　芳樹: "異なるコードクローン検出ツールの結果を比較して表示する手法の提案", 電子情報通信学会, vol.2023-SE-214, 2023年7月](https://sel.ist.osaka-u.ac.jp/lab-db/betuzuri/archive/1268/1268.pdf)
+
 ## Additional Functions(2023/02/14)
 
 A new function has been added to compare and display the detection results of different code clone detection tools. Please read the following document for a detailed description of the feature and how to use it.
