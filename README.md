@@ -1,3 +1,21 @@
+## 追加機能(2023/02/14)
+
+CCXを拡張し、異なるコードクローン検出ツールの検出結果を比較して表示する新たな機能を追加しました。
+
+機能の詳しい説明、使用方法などに関しては以下のドキュメントを読んでください。
+
+[新規比較機能の使い方](/docs/CCXDocument_ja.pdf)
+
+本機能を実装した研究成果は第214回ソフトウェア工学発表会で発表されました。
+
+- [小林　亮太, 松島　誠, 肥後　芳樹: "異なるコードクローン検出ツールの結果を比較して表示する手法の提案", 電子情報通信学会, vol.2023-SE-214, 2023年7月](https://sel.ist.osaka-u.ac.jp/lab-db/betuzuri/archive/1268/1268.pdf)
+
+## Additional Functions(2023/02/14)
+
+A new function has been added to compare and display the detection results of different code clone detection tools. Please read the following document for a detailed description of the feature and how to use it.
+
+[How to use the new comparison function](/docs/CCXDocument_en.pdf)
+
 # ccx
 
 CCXは、SaaS型コードクローン分析システムです。
@@ -57,21 +75,3 @@ git repository should not include non-English character path names.
 
 
 Currently, to prevent the system from being overloaded, each  clone detection is forced to terminate if it takes more than 5 minutes.
-
-## 追加機能(2023/02/14)
-
-CCXを拡張し、異なるコードクローン検出ツールの検出結果を比較して表示する新たな機能を追加しました。
-
-機能の詳しい説明、使用方法などに関しては以下のドキュメントを読んでください。
-
-[新規比較機能の使い方](/docs/CCXDocument_ja.pdf)
-
-本機能を実装した研究成果は第214回ソフトウェア工学発表会で発表されました。
-
-- [小林　亮太, 松島　誠, 肥後　芳樹: "異なるコードクローン検出ツールの結果を比較して表示する手法の提案", 電子情報通信学会, vol.2023-SE-214, 2023年7月](https://sel.ist.osaka-u.ac.jp/lab-db/betuzuri/archive/1268/1268.pdf)
-
-## Additional Functions(2023/02/14)
-
-A new function has been added to compare and display the detection results of different code clone detection tools. Please read the following document for a detailed description of the feature and how to use it.
-
-[How to use the new comparison function](/docs/CCXDocument_en.pdf)
